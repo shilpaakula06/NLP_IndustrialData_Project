@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <title>Industrial Risk Guru</title>
+  <head>
+    <link href='https://fonts.googleapis.com/css?family=Alegreya' rel='stylesheet'>
+    <link rel="icon" href="">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot_style.css') }}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    
+   <div> <center>
+      <h1>
+      Industrial Risk Chatbot
+      </h1>
+    </center>
+  </div>
+    <div class="boxed">     
+              
+    <div id="chatbox" class="botText">   
+          <img src="/static/images/bot-pic.PNG" class="img-rounded">       
+          <center>I am Guru 2.0, Your Pal for Industrial safety </center>
+    </div>        
+     
+      
+    <div id="userInput">
+      <div class="row col-md-12">        
+        <input id="nameInput" type="text" name="msg" placeholder="Give your input..." />
+      </div>          
+          <!-- <input type="button" value="reset" onclick="resetChat()" /> -->
+    </div>
+        <script> 
+                //text to Speech
+                //https://developers.google.com/web/updates/2014/01/Web-apps-that-talk-Introduction-to-the-Speech-Synthesis-API
+                function Speech(say) {
+                  //int("speech")
+                  talking = true;
+                  if ('speechSynthesis' in window && talking) {                    
+                    var utterance = new SpeechSynthesisUtterance(say);
+                    //msg.voice = voices[10]; // Note: some voices don't support altering params
+                    //msg.voiceURI = 'native';
+                    //utterance.volume = 1; // 0 to 1
+                    //utterance.rate = 0.1; // 0.1 to 10
+                    //utterance.pitch = 1; //0 to 2
+                    //utterance.text = 'Hello World';
+                    //utterance.lang = 'en-US';
+                    speechSynthesis.speak(utterance);
+                  }
+                }               
+                const inputFields = ["Name","Gender","Local","Countries","Industry Sector","Employee or Third Party","Critical Risk", "Description"]
+                var inputJson = {};
+                var latestQuestion = ""                
+                function addTextToView(text, _class) { 
+                  
+                  var userHtml = "";
+                  if(_class == "botText") {  
+                  Speech(text)                  
+                  userHtml = '<p class="' + _class + '"> <img src="/static/images/bot-pic.PNG" class="img-rounded"> <span>' + text + "</span></p>";
+                  }
+                  else
+                  userHtml = '<p class="' + _class + '"> <b>User:</b> <span>' + text + "</span></p>";                  
+                  $("#nameInput").val("");
+                  $("#chatbox").append(userHtml);
+                  document
+                    .getElementById("userInput")
+                    .scrollIntoView({ block: "start", behavior: "smooth" });
+                }
+
+                function processInput() {
+                  var rawText = $("#nameInput").val();
+                  addTextToView(rawText, "userText")
+
+                  if(rawText.toUpperCase() === "END" || rawText.toUpperCase() === "RESET") {
+                    alert("We never had this conversation")
+                    resetChat()
+                  }
+
+                  inputJson[latestQuestion] =  rawText
+                  
+                  console.log(inputJson)
+
+                  latestQuestion = ""
+                  var nextMissingField = getNextQuestion()
+                  if(nextMissingField == null) {
+                    console.log('Fetched all input. Calling Api')
+                    getBotResponse()
+                  } else {
+                    console.log('Asking for ' + nextMissingField)
+                    latestQuestion = nextMissingField
+                    askForInput(nextMissingField)
+                  }
+                }
+
+                function getNextQuestion() {
+                  for(const field of inputFields) {
+                    if(!inputJson[field] || inputJson[field] === "") {
+                      return field
+                    }
+                  }
+                  return null
+                }
+
+                function resetChat() {
+                  inputJson = {}
+                  $("#chatbox").html('<p class="botText"><center>I am Guru 2.0, Your Pal for Industrial safety </center></span> </p>');
+                }
+
+                function askForInput(question) {
+                  addTextToView("Enter the " + question, "botText") 
+                }
+
+                function getBotResponse() {
+                    $.ajax({
+                      type: 'post',
+                      url: '/classify',
+                      data: JSON.stringify(inputJson),
+                      contentType: "application/json; charset=utf-8",
+                      traditional: true,
+                      success: function (data) {
+                        var botResponse = 'Your potential accident level is : ' + data.risk
+                        addTextToView(botResponse, "botText")
+                        addTextToView("Your accident level is : " + data.risk_al, "botText")                        
+                        addTextToView("Thanks for the conversation. Take necessary precautions and work safely", "botText")                        
+                      }
+                    });
+                }
+
+                $("#nameInput").keypress(function(e) {
+                  if (e.which == 13) {
+                    processInput();
+                  }
+                });
+
+                resetChat();
+        </script>
+    </div>
+</body>
+</html>

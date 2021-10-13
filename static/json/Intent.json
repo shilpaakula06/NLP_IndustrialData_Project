@@ -1,0 +1,43 @@
+{"intents": [
+    {"tag": "Name",
+     "patterns": ["Name"],
+     "responses": ["Hello"],
+     "context": [""]
+    },
+    {"tag": "Gender",
+     "patterns": ["Gender"],
+     "responses": ["Male", "Female"],
+     "context": [""]
+    },
+    {"tag": "Local",
+        "patterns": ["Local"],
+        "responses": ["Local","Local","Local","Local","Local","Local","Local"],
+        "context": [""]
+    }
+    ,
+    {"tag": "Countries",
+        "patterns": ["Countries"],
+        "responses": ["Country_01, Country_02, Country_03"],
+        "context": [""]
+    }
+    ,
+    {"tag": "Industry Sector",
+        "patterns": ["Industry Sector"],
+        "responses": ["Mining","Metal","others"],
+        "context": [""]
+    }
+    ,
+    {"tag": "Employee or Third Party",
+        "patterns": ["Employee or Third Party"],
+        "responses": ["Employee","Third Party","Third Party(Remote)"],
+        "context": [""]
+    }
+    ,
+    {"tag": "Critical Risk",
+        "patterns": ["Critical Risk"],
+        "responses": ["others","Third Party","Third Party(Remote)"],
+        "context": [""]
+    }    
+]
+}
+ 
